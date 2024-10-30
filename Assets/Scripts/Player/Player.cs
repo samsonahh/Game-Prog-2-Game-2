@@ -8,7 +8,7 @@ public class Player : MonoBehaviour
 {
     [Header("References")]
     [SerializeField, Self] private Rigidbody rigidBody;
-    [SerializeField, Self] private FloatingCapsule floatingCapsule;
+    [field: SerializeField, Self] public FloatingCapsule FloatingCapsule { get; private set; }
 
     [Header("Movement Settings")]
     [SerializeField] private float baseSpeed = 3f;
@@ -18,6 +18,8 @@ public class Player : MonoBehaviour
 
     [Header("Jump Settings")]
     [SerializeField] private float jumpHeight = 3f;
+    private float instantJumpVelocity => Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
+    public float JumpDurationToApex => Mathf.Abs(instantJumpVelocity / Physics.gravity.y);
 
     #region Flags
     [HideInInspector] public bool IsGrounded;
@@ -28,6 +30,8 @@ public class Player : MonoBehaviour
     public BaseState DefaultState { get; private set; }
     public PlayerIdleState PlayerIdleState { get; private set; }
     public PlayerWalkState PlayerWalkState { get; private set; }
+    public PlayerJumpState PlayerJumpState { get; private set; }
+    public PlayerFallState PlayerFallState { get; private set; }
     #endregion
 
     private void OnValidate()
@@ -64,7 +68,7 @@ public class Player : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawWireSphere(transform.position + (0.25f) * floatingCapsule.Radius * transform.up, floatingCapsule.Radius);   
+        Gizmos.DrawWireSphere(transform.position + (0.25f) * FloatingCapsule.Radius * transform.up, FloatingCapsule.Radius);   
     }
 
     #region StateFunctions
@@ -91,6 +95,8 @@ public class Player : MonoBehaviour
     {
         PlayerIdleState = new PlayerIdleState(this);
         PlayerWalkState = new PlayerWalkState(this);
+        PlayerJumpState = new PlayerJumpState(this);
+        PlayerFallState = new PlayerFallState(this);
     }
     #endregion
 
@@ -103,14 +109,19 @@ public class Player : MonoBehaviour
     public void HandleJumpInput()
     {
         if (!IsGrounded) return;
+        if(CurrentState == PlayerJumpState) return;
+        if (CurrentState == PlayerFallState) return;
 
-        if (Input.GetKeyDown(KeyCode.Space)) Jump();
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            ChangeState(PlayerJumpState);
+        }
     }
     #endregion
 
     private void CheckGrounded()
     {
-        IsGrounded = Physics.CheckSphere(transform.position + (0.25f) * floatingCapsule.Radius * transform.up, floatingCapsule.Radius, LayerMask.GetMask("Ground"));
+        IsGrounded = Physics.CheckSphere(transform.position + (0.25f) * FloatingCapsule.Radius * transform.up, FloatingCapsule.Radius, LayerMask.GetMask("Ground"));
     }
 
     public void Move()
@@ -119,27 +130,30 @@ public class Player : MonoBehaviour
         Quaternion targetForwardRotation = Quaternion.Euler(0, forwardAngleBasedOnCamera, 0);
         Vector3 targetForwardDirection = targetForwardRotation * Vector3.forward;
 
-        rigidBody.MovePosition(transform.position + moveSpeed * Time.fixedDeltaTime * targetForwardDirection);
+        if (MoveDirection == Vector3.zero)
+        {
+            targetForwardRotation = transform.rotation;
+            targetForwardDirection = Vector3.zero;
+        }
+
+        Vector3 velocityWithNoY = new Vector3(rigidBody.velocity.x, 0, rigidBody.velocity.z);
+
+        rigidBody.AddForce(moveSpeed * targetForwardDirection - velocityWithNoY, ForceMode.VelocityChange);
     }
 
     public void Jump()
     {
-        float newYVel = Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
-        float timeToApex = Mathf.Abs(newYVel / Physics.gravity.y);
-
-        TemporarilyDisableFloatingCapsule(timeToApex);
-
         Vector3 vel = rigidBody.velocity;
-        vel.y = newYVel;
+        vel.y = instantJumpVelocity;
 
         rigidBody.velocity = vel;
     }
 
     private void TemporarilyDisableFloatingCapsule(float duration)
     {
-        floatingCapsule.enabled = false;
+        FloatingCapsule.enabled = false;
         DOTween.Kill("DisableFloatingCapsule");
-        DOVirtual.DelayedCall(duration, () => floatingCapsule.enabled = true).SetId("DisableFloatingCapsule");
+        DOVirtual.DelayedCall(duration, () => FloatingCapsule.enabled = true).SetId("DisableFloatingCapsule");
     }
 
     public void SetSpeedModifier(float newSpeed)

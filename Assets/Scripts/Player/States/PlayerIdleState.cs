@@ -1,7 +1,7 @@
 ﻿
 using UnityEngine;
 
-public class PlayerIdleState : PlayerBaseState
+public class PlayerIdleState : PlayerGroundedState
 {
     public PlayerIdleState(Player player) : base(player)
     {
@@ -10,7 +10,7 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void OnEnter()
     {
-        Debug.Log($"Entering {GetType().ToString()}");
+        base.OnEnter();
 
         player.SetSpeedModifier(0f);
     }
@@ -22,6 +22,8 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void OnUpdate()
     {
+        base.OnUpdate();
+
         if (player.MoveDirection.magnitude > 0)
         {
             player.ChangeState(player.PlayerWalkState);
@@ -31,6 +33,6 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void OnFixedUpdate()
     {
-
+        base.OnFixedUpdate();
     }
 }
