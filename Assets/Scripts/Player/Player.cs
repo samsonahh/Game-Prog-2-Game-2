@@ -21,10 +21,6 @@ public class Player : MonoBehaviour
     private float instantJumpVelocity => Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
     public float JumpDurationToApex => Mathf.Abs(instantJumpVelocity / Physics.gravity.y);
 
-    #region Flags
-    [HideInInspector] public bool IsGrounded;
-    #endregion
-
     #region States
     public BaseState CurrentState { get; private set; }
     public BaseState DefaultState { get; private set; }
@@ -57,18 +53,11 @@ public class Player : MonoBehaviour
         // Handle inputs
         HandleMovementInput();
         HandleJumpInput();
-
-        CheckGrounded();
     }
 
     private void FixedUpdate()
     {
         CurrentState?.OnFixedUpdate();
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawWireSphere(transform.position + (0.25f) * FloatingCapsule.Radius * transform.up, FloatingCapsule.Radius);   
     }
 
     #region StateFunctions
@@ -108,7 +97,7 @@ public class Player : MonoBehaviour
 
     public void HandleJumpInput()
     {
-        if (!IsGrounded) return;
+        if (!FloatingCapsule.IsGrounded) return;
         if(CurrentState == PlayerJumpState) return;
         if (CurrentState == PlayerFallState) return;
 
@@ -118,11 +107,6 @@ public class Player : MonoBehaviour
         }
     }
     #endregion
-
-    private void CheckGrounded()
-    {
-        IsGrounded = Physics.CheckSphere(transform.position + (0.25f) * FloatingCapsule.Radius * transform.up, FloatingCapsule.Radius, LayerMask.GetMask("Ground"));
-    }
 
     public void Move()
     {

@@ -15,7 +15,7 @@ public class FloatingCapsule : MonoBehaviour
     [SerializeField] private float springStrength = 50f;
     [SerializeField] private float springDamp = 5f;
 
-    public float Radius => capsuleCollider.radius;
+    [field: SerializeField] public bool IsGrounded { get; private set; }
 
     private void OnValidate()
     {
@@ -23,6 +23,11 @@ public class FloatingCapsule : MonoBehaviour
     }
 
     private void Update()
+    {
+        CheckGrounded();
+    }
+
+    private void FixedUpdate()
     {
         HandleFloatingCapsule();
     }
@@ -49,5 +54,15 @@ public class FloatingCapsule : MonoBehaviour
 
         //Debug.Log($"Diff: {floatHeightGroundDifference}, Force: {springForce}, Dir: {rayCastDir * springForce}");
         rigidBody.AddForce(rayCastDir * springForce);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(capsuleCollider.bounds.center - desiredFloatHeight * transform.up + (0.9f) * capsuleCollider.radius * transform.up, capsuleCollider.radius);
+    }
+
+    private void CheckGrounded()
+    {
+        IsGrounded = Physics.CheckSphere(capsuleCollider.bounds.center - desiredFloatHeight * transform.up + (0.9f) * capsuleCollider.radius * transform.up, capsuleCollider.radius, LayerMask.GetMask("Ground"));
     }
 }

@@ -20,7 +20,7 @@ public class PlayerGroundedState : PlayerBaseState
 
     public override void OnUpdate()
     {
-        if (!player.IsGrounded)
+        if (!player.FloatingCapsule.IsGrounded)
         {
             player.ChangeState(player.PlayerFallState);
             return;
