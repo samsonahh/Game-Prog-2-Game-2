@@ -328,6 +328,7 @@ MonoBehaviour:
   jumpHeight: 2
   <MineDuration>k__BackingField: 0.5
   mineRange: 1.5
+  mineDamage: 25
 --- !u!4 &696095377
 Transform:
   m_ObjectHideFlags: 0

@@ -30,7 +30,7 @@ public class Ore : MonoBehaviour
     public void OnDeath()
     {
         DOTween.Kill(transform);
-        transform.DOScale(Vector3.zero, 0.15f).SetEase(Ease.InQuint).OnComplete(() => { Destroy(gameObject); });
+        transform.DOScale(Vector3.zero, 0.15f).SetEase(Ease.InBack).OnComplete(() => { Destroy(gameObject); });
     }
 
     private void OnDestroy()

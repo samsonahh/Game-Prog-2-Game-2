@@ -20,9 +20,9 @@ public class PlayerMineState : PlayerGroundedState
         startRotation = player.PickaxeTransform.localRotation;
         targetRotation = Quaternion.Euler(startRotation.eulerAngles.x, startRotation.eulerAngles.y, 90f);
 
-        player.PickaxeTransform.DOLocalRotateQuaternion(targetRotation, player.MineDuration/2).SetEase(Ease.InQuint).OnComplete(() => {
+        player.PickaxeTransform.DOLocalRotateQuaternion(targetRotation, player.MineDuration/2).SetEase(Ease.InBack).OnComplete(() => {
             player.Mine();
-            player.PickaxeTransform.DOLocalRotateQuaternion(startRotation, player.MineDuration/2).SetEase(Ease.OutQuint).OnComplete(() => { player.ChangeState(player.DefaultState); });
+            player.PickaxeTransform.DOLocalRotateQuaternion(startRotation, player.MineDuration/2).SetEase(Ease.OutBack).OnComplete(() => { player.ChangeState(player.DefaultState); });
         });
     }
 
