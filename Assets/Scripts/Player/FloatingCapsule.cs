@@ -36,7 +36,7 @@ public class FloatingCapsule : MonoBehaviour
     {
         Vector3 rayCastDir = -transform.up;
         RaycastHit groundHit;
-        Physics.Raycast(capsuleCollider.bounds.center, rayCastDir, out groundHit, rayLength, LayerMask.GetMask("Ground"));
+        Physics.Raycast(capsuleCollider.bounds.center, rayCastDir, out groundHit, rayLength, LayerMask.GetMask("Ground", "Ore"));
         /*Debug.DrawLine(capsuleCollider.bounds.center, capsuleCollider.bounds.center + rayLength * rayCastDir, Color.white);
         Debug.DrawLine(capsuleCollider.bounds.center + Vector3.right, capsuleCollider.bounds.center + Vector3.right + desiredFloatHeight * rayCastDir, Color.green);
 */
@@ -46,7 +46,7 @@ public class FloatingCapsule : MonoBehaviour
         }
         Debug.DrawLine(capsuleCollider.bounds.center, groundHit.point, Color.red);
 
-        float floatHeightGroundDifference =  groundHit.distance - desiredFloatHeight;
+        float floatHeightGroundDifference =  groundHit.distance - (capsuleCollider.height/2 + desiredFloatHeight);
 
         float rayCastDirVel = Vector3.Dot(rayCastDir, rigidBody.velocity);
 
@@ -58,11 +58,11 @@ public class FloatingCapsule : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawWireSphere(capsuleCollider.bounds.center - desiredFloatHeight * transform.up + (0.9f) * capsuleCollider.radius * transform.up, capsuleCollider.radius);
+        Gizmos.DrawWireSphere(transform.position - desiredFloatHeight * transform.up + capsuleCollider.radius * transform.up, capsuleCollider.radius);
     }
 
     private void CheckGrounded()
     {
-        IsGrounded = Physics.CheckSphere(capsuleCollider.bounds.center - desiredFloatHeight * transform.up + (0.9f) * capsuleCollider.radius * transform.up, capsuleCollider.radius, LayerMask.GetMask("Ground"));
+        IsGrounded = Physics.CheckSphere(transform.position - desiredFloatHeight * transform.up + capsuleCollider.radius * transform.up, capsuleCollider.radius, LayerMask.GetMask("Ground", "Ore"));
     }
 }

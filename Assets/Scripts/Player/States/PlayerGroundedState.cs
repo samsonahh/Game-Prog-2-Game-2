@@ -10,7 +10,6 @@ public class PlayerGroundedState : PlayerBaseState
 
     public override void OnEnter()
     {
-        Debug.Log($"Entering {GetType().ToString()}");
     }
 
     public override void OnExit()
@@ -25,6 +24,8 @@ public class PlayerGroundedState : PlayerBaseState
             player.ChangeState(player.PlayerFallState);
             return;
         }
+
+        player.HandleMineInput();
     }
 
     public override void OnFixedUpdate()

@@ -10,8 +10,6 @@ public class PlayerFallState : PlayerBaseState
 
     public override void OnEnter()
     {
-        Debug.Log($"Entering {GetType().ToString()}");
-
         player.SetSpeedModifier(1f);
     }
 

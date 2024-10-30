@@ -12,8 +12,6 @@ public class PlayerJumpState : PlayerBaseState
 
     public override void OnEnter()
     {
-        Debug.Log($"Entering {GetType().ToString()}");
-
         player.SetSpeedModifier(1f);
 
         player.FloatingCapsule.enabled = false;
