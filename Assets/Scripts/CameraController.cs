@@ -1,3 +1,4 @@
+using KBCore.Refs;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,7 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     [Header("References")]
+    [SerializeField, Scene] private GameManager gameManager;
     [SerializeField] private Transform followTarget;
 
     [Header("Settings")]
@@ -14,19 +16,21 @@ public class CameraController : MonoBehaviour
     private float xRot, yRot;
     [SerializeField] private Vector3 offset = new Vector3(0, 2, 0);
     private Vector3 targetPosition;
-    [SerializeField] private bool isCursorLocked = true;
 
     private bool isCamShaking;
     private float camShakeTimer = Mathf.Infinity;
     private float camShakeMagnitude;
+
+    private void OnValidate()
+    {
+        this.ValidateRefs();
+    }
 
     private void Update()
     {
         HandleCameraInput();
 
         UpdateCameraShake();
-
-        Cursor.lockState = isCursorLocked ? CursorLockMode.Locked : CursorLockMode.None;
     }
 
     private void FixedUpdate()
@@ -37,6 +41,9 @@ public class CameraController : MonoBehaviour
 
     private void HandleCameraInput()
     {
+        if(gameManager.CurrentState == GameManager.GameState.SHOPPING) return;
+        if(gameManager.CurrentState == GameManager.GameState.PAUSED) return;
+
         float x = Input.GetAxisRaw("Mouse Y");
         float y = Input.GetAxisRaw("Mouse X");
 

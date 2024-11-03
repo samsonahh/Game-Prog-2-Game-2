@@ -25,6 +25,7 @@ public class Player : MonoBehaviour
 
     [field: Header("Mine Settings")]
     [field: SerializeField] public float MineDuration { get; private set; } = 0.25f;
+    [field: SerializeField] public float MiningSpeedModifier { get; private set; } = 0.25f;
     [SerializeField] private float mineRange = 2f;
     [SerializeField] private float mineDamage = 10f;
 
@@ -133,14 +134,9 @@ public class Player : MonoBehaviour
     public void Move()
     {
         float forwardAngleBasedOnCamera = Mathf.Atan2(MoveDirection.x, MoveDirection.z) * Mathf.Rad2Deg + Camera.main.transform.rotation.eulerAngles.y;
-        Quaternion targetForwardRotation = Quaternion.Euler(0, forwardAngleBasedOnCamera, 0);
-        Vector3 targetForwardDirection = targetForwardRotation * Vector3.forward;
+        Vector3 targetForwardDirection = Quaternion.Euler(0, forwardAngleBasedOnCamera, 0) * Vector3.forward;
 
-        if (MoveDirection == Vector3.zero)
-        {
-            targetForwardRotation = transform.rotation;
-            targetForwardDirection = Vector3.zero;
-        }
+        if (MoveDirection == Vector3.zero) targetForwardDirection = Vector3.zero;
 
         Vector3 velocityWithNoY = new Vector3(rigidBody.velocity.x, 0, rigidBody.velocity.z);
 

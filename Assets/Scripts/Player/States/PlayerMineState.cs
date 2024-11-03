@@ -4,6 +4,7 @@ using UnityEngine;
 public class PlayerMineState : PlayerGroundedState
 {
     Quaternion startRotation;
+    Quaternion backRotation;
     Quaternion targetRotation;
 
     public PlayerMineState(Player player) : base(player)
@@ -15,20 +16,21 @@ public class PlayerMineState : PlayerGroundedState
     {
         base.OnEnter();
 
-        player.SetSpeedModifier(0f);
+        player.SetSpeedModifier(player.MiningSpeedModifier);
 
         startRotation = player.PickaxeTransform.localRotation;
-        targetRotation = Quaternion.Euler(startRotation.eulerAngles.x, startRotation.eulerAngles.y, 90f);
+        backRotation = Quaternion.Euler(startRotation.eulerAngles.x, startRotation.eulerAngles.y, startRotation.eulerAngles.z + 45f);
+        targetRotation = Quaternion.Euler(startRotation.eulerAngles.x, startRotation.eulerAngles.y, startRotation.eulerAngles.z - 80f);
 
-        player.PickaxeTransform.DOLocalRotateQuaternion(targetRotation, player.MineDuration/2).SetEase(Ease.InBack).OnComplete(() => {
-            player.Mine();
-            player.PickaxeTransform.DOLocalRotateQuaternion(startRotation, player.MineDuration/2).SetEase(Ease.OutBack).OnComplete(() => { player.ChangeState(player.DefaultState); });
-        });
+        Sequence sequence = DOTween.Sequence().SetId("Mine");
+        sequence.Append(player.PickaxeTransform.DOLocalRotateQuaternion(backRotation, player.MineDuration / 2).SetEase(Ease.InBack));
+        sequence.Append(player.PickaxeTransform.DOLocalRotateQuaternion(targetRotation, player.MineDuration / 4).SetEase(Ease.InBack).OnComplete(()=> { player.Mine(); }));
+        sequence.Append(player.PickaxeTransform.DOLocalRotateQuaternion(startRotation, player.MineDuration / 4).SetEase(Ease.OutBack).OnComplete(() => { player.ChangeState(player.DefaultState); }));
     }
 
     public override void OnExit()
     {
-        DOTween.Kill(player.PickaxeTransform);
+        DOTween.Kill("Mine");
         player.PickaxeTransform.localRotation = startRotation;
     }
 
