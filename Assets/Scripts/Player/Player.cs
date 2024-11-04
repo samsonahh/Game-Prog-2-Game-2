@@ -15,7 +15,7 @@ public class Player : MonoBehaviour
     [Header("Movement Settings")]
     [SerializeField] private float baseSpeed = 3f;
     private float speedModifier = 1f;
-    private float moveSpeed => speedModifier * baseSpeed;
+    public float MoveSpeed => speedModifier * baseSpeed;
     public Vector3 MoveDirection { get; private set; }
 
     [Header("Jump Settings")]
@@ -24,7 +24,8 @@ public class Player : MonoBehaviour
     public float JumpDurationToApex => Mathf.Abs(instantJumpVelocity / Physics.gravity.y);
 
     [field: Header("Mine Settings")]
-    [field: SerializeField] public float MineDuration { get; private set; } = 0.25f;
+    [field: SerializeField] public float BaseMineDuration { get; private set; } = 0.25f;
+    public float CurrentMineDuration { get; private set; }
     [field: SerializeField] public float MiningSpeedModifier { get; private set; } = 0.25f;
     [SerializeField] private float mineRange = 2f;
     [SerializeField] private float mineDamage = 10f;
@@ -53,6 +54,8 @@ public class Player : MonoBehaviour
     {
         SetDefaultState(PlayerIdleState);
         SetStartState(PlayerIdleState);
+
+        CurrentMineDuration = BaseMineDuration;
     }
 
     private void Update()
@@ -140,7 +143,7 @@ public class Player : MonoBehaviour
 
         Vector3 velocityWithNoY = new Vector3(rigidBody.velocity.x, 0, rigidBody.velocity.z);
 
-        rigidBody.AddForce(moveSpeed * targetForwardDirection - velocityWithNoY, ForceMode.VelocityChange);
+        rigidBody.AddForce(MoveSpeed * targetForwardDirection - velocityWithNoY, ForceMode.VelocityChange);
     }
 
     public void Jump()
@@ -163,7 +166,17 @@ public class Player : MonoBehaviour
 
         Ore ore = hit.collider.GetComponent<Ore>();
 
-        ore.TakeDamage(mineDamage);
+        ore.TakeDamage(mineDamage, hit.point, hit.normal);
+
+        AudioManager.Instance.Play(AudioManager.Instance.MineSFX, 1f, 0.15f * Random.Range(-1f, 0.5f) + 1f);
+
+        FindObjectOfType<CameraController>().ShakeCamera(2f, 0.1f);
+    }
+
+    public void BuffMineDuration(int quota)
+    {
+        CurrentMineDuration = BaseMineDuration * Mathf.Pow(0.95f, quota);
+        Debug.Log(CurrentMineDuration);
     }
 
     private void RotateWithCamera()

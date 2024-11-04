@@ -21,7 +21,7 @@ public class OreValues : ScriptableObject
         ConvertSerializedValuesToDict();
     }
 
-    private void ConvertSerializedValuesToDict()
+    public void ConvertSerializedValuesToDict()
     {
         for(int i = 0; i < serializedValues.Count; i++)
         {

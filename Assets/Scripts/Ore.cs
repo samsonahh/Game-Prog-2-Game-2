@@ -1,4 +1,5 @@
 using DG.Tweening;
+using KBCore.Refs;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,10 +8,18 @@ public class Ore : MonoBehaviour
 {
     private Inventory playerMoney;
 
+    [Header("References")]
+    [SerializeField] private GameObject particlesPrefab;
+
     [Header("Settings")]
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float currentHealth;
     [SerializeField] private OreType oreType;
+
+    private void OnValidate()
+    {
+        this.ValidateRefs();
+    }
 
     private void Awake()
     {
@@ -22,7 +31,7 @@ public class Ore : MonoBehaviour
         currentHealth = maxHealth;
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, Vector3 hitPoint, Vector3 dir)
     {
         DOTween.Kill(gameObject);
 
@@ -31,6 +40,8 @@ public class Ore : MonoBehaviour
         sequence.Append(transform.DOScale(1f * Vector3.one, 0.15f).SetEase(Ease.InQuint));
 
         currentHealth -= damage;
+
+        Destroy(Instantiate(particlesPrefab, hitPoint, Quaternion.LookRotation(dir)), 3f);
 
         if(currentHealth <= 0f && maxHealth > 0)
         {
@@ -48,7 +59,7 @@ public class Ore : MonoBehaviour
 
     private void OnDestroy()
     {
-        
+        DOTween.Kill(gameObject);
     }
 }
 

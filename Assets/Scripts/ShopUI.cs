@@ -44,7 +44,8 @@ public class ShopUI : MonoBehaviour
 
     private void Start()
     {
-        Close();
+        gameObject.SetActive(false);
+        transform.localScale = Vector3.zero;
     }
 
     private void GameManager_OnStateChanged(GameManager.GameState state)
@@ -93,8 +94,10 @@ public class ShopUI : MonoBehaviour
 
     private void SellInventory()
     {
-        inventory.ConvertOresToMoney();
+        bool success = inventory.ConvertOresToMoney();
         UpdateOreCounts(inventory.OreInventory);
+
+        if(success) AudioManager.Instance.Play(AudioManager.Instance.ChaChingSFX, 0.25f);
 
         moneyText.text = $"MONEY: ${inventory.Money}";
     }
