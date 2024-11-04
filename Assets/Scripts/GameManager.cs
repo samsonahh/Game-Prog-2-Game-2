@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
     [Header("Quota Settings")]
     [SerializeField] private int baseQuota = 30;
     [SerializeField] private float quotaLinearGrowth = 20f;
-    [SerializeField] private float quotaExpGrowth = 1.025f;
+    [SerializeField] private float quotaExponentialGrowth = 1.025f;
     [SerializeField] private float quotaDuration = 30f;
     [field: SerializeField] public float QuotaIntermissionDuration { get; private set; } = 3f;
     public int CurrentQuota { get; private set; }
@@ -211,7 +211,7 @@ public class GameManager : MonoBehaviour
         ChangeState(GameState.INTERMISSION);
 
         CurrentQuota++;
-        CurrentQuotaRequirement = (int)Math.Floor(baseQuota + CurrentQuota * quotaLinearGrowth + baseQuota * Mathf.Pow(quotaExpGrowth, CurrentQuota));
+        CurrentQuotaRequirement = (int)Math.Floor(baseQuota + CurrentQuota * quotaLinearGrowth + Mathf.Pow(CurrentQuota, quotaExponentialGrowth));
 
         playerInventory.GetComponent<Player>().BuffMineDuration(CurrentQuota);
 
